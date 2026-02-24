@@ -2151,6 +2151,8 @@ public:
                                                           (log_format*) this}
                                            .with_struct_name(FIELDS_NAME);
                             values.lvv_values.emplace_back(lvm, bv.bv_value);
+                            values.lvv_values.back().lv_origin
+                                = to_line_range(bv.bv_str_value);
 
                             return bv.bv_str_value;
                         },
@@ -2165,7 +2167,8 @@ public:
                                                           (log_format*) this}
                                            .with_struct_name(FIELDS_NAME);
                             values.lvv_values.emplace_back(lvm, iv.iv_value);
-
+                            values.lvv_values.back().lv_origin
+                                = to_line_range(iv.iv_str_value);
                             return iv.iv_str_value;
                         },
                         [this, &kvp, &values](
@@ -2179,6 +2182,8 @@ public:
                                                           (log_format*) this}
                                            .with_struct_name(FIELDS_NAME);
                             values.lvv_values.emplace_back(lvm, fv.fv_value);
+                            values.lvv_values.back().lv_origin
+                                = to_line_range(fv.fv_str_value);
 
                             return fv.fv_str_value;
                         },
@@ -2188,8 +2193,7 @@ public:
                         [](const logfmt::parser::unquoted_value& uv) {
                             return uv.uv_value;
                         });
-                    auto value_lr
-                        = line_range{value_frag.sf_begin, value_frag.sf_end};
+                    auto value_lr = to_line_range(value_frag);
 
                     auto known_field = false;
                     if (kvp.first.is_one_of(
@@ -2208,17 +2212,18 @@ public:
                                || kvp.second
                                       .is<logfmt::parser::unquoted_value>())
                     {
-                        auto lvm
-                            = logline_value_meta{intern_string::lookup(
-                                                     kvp.first),
-                                                 value_frag.startswith("\"")
-                                                     ? value_kind_t::VALUE_JSON
-                                                     : value_kind_t::VALUE_TEXT,
-                                                 logline_value_meta::
-                                                     table_column{0},
-                                                 (log_format*) this}
-                                  .with_struct_name(FIELDS_NAME);
+                        auto vkind = value_frag.startswith("\"")
+                            ? value_kind_t::VALUE_JSON
+                            : value_kind_t::VALUE_TEXT;
+                        auto lvm = logline_value_meta{
+                            intern_string::lookup(kvp.first),
+                            vkind,
+                            logline_value_meta::table_column{0},
+                            (log_format*) this,
+                        };
+                        lvm.with_struct_name(FIELDS_NAME);
                         values.lvv_values.emplace_back(lvm, value_frag);
+                        values.lvv_values.back().lv_origin = value_lr;
                     }
                     if (known_field) {
                         auto key_with_eq = kvp.first;

@@ -1372,12 +1372,15 @@ com_highlight_field(exec_context& ec,
             break;
         }
     }
-    if (name_index + 1 >= args.size()) {
-        return ec.make_error("expecting field name and pattern");
+    if (name_index >= args.size()) {
+        return ec.make_error("expecting field name");
     }
 
-    auto pat = trim(remaining_args(cmdline, args, name_index + 1));
+    auto pat = name_index + 1 < args.size()
+        ? trim(remaining_args(cmdline, args, name_index + 1))
+        : std::string(".*");
 
+    log_debug("pat %s", pat.c_str());
     std::vector<std::string> cli_args(args.begin() + 1,
                                       args.begin() + name_index + 1);
     std::vector<lnav::console::user_message> errors;
@@ -3494,7 +3497,8 @@ readline_context::command_t STD_COMMANDS[] = {
                     .with_format(help_parameter_format_t::HPF_FORMAT_FIELD))
             .with_parameter(
                 help_text("pattern", "The regular expression to match")
-                    .with_format(help_parameter_format_t::HPF_REGEX))
+                    .with_format(help_parameter_format_t::HPF_REGEX)
+                    .optional())
             .with_tags({"display"})
             .with_opposites({"clear-highlight-field"})
             .with_example({"To color status values that start with '2' green",

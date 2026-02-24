@@ -1331,7 +1331,7 @@ For support questions, email:
    
 
 
-[4m:[0m[1m[4mhighlight-field[0m[4m [[0m[4m--color[0m[4m] [[0m[4m--bold[0m[4m] [[0m[4m--underline[0m[4m] [[0m[4m--italic[0m[4m] [[0m[4m--strike[0m[4m] [[0m[4m--blink[0m[4m] [0m[4mfield[0m[4m [0m[4mpattern[0m
+[4m:[0m[1m[4mhighlight-field[0m[4m [[0m[4m--color[0m[4m] [[0m[4m--bold[0m[4m] [[0m[4m--underline[0m[4m] [[0m[4m--italic[0m[4m] [[0m[4m--strike[0m[4m] [[0m[4m--blink[0m[4m] [0m[4mfield[0m[4m [[0m[4mpattern[0m[4m][0m
 ══════════════════════════════════════════════════════════════════════
   Highlight a field that matches the given pattern
 [4mParameters[0m

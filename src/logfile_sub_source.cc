@@ -335,9 +335,14 @@ logfile_sub_source::text_value_for_line(textview_curses& tc,
                      this->lss_token_al.al_attrs,
                      this->lss_token_values);
 
+    for (const auto& lv : this->lss_token_values.lvv_values) {
+        log_debug(" lv %s", lv.lv_meta.lvm_name.c_str());
+    }
+
     for (const auto& hl : format->lf_highlighters) {
         auto hl_range = line_range{0, -1};
         auto value_iter = this->lss_token_values.lvv_values.end();
+        log_debug("field %s", hl.h_field.c_str());
         if (!hl.h_field.empty()) {
             value_iter = std::find_if(this->lss_token_values.lvv_values.begin(),
                                       this->lss_token_values.lvv_values.end(),
@@ -357,6 +362,7 @@ logfile_sub_source::text_value_for_line(textview_curses& tc,
     for (const auto& hl : this->lss_highlighters) {
         auto hl_range = line_range{0, -1};
         auto value_iter = this->lss_token_values.lvv_values.end();
+        log_debug("field2 %s", hl.h_field.c_str());
         if (!hl.h_field.empty()) {
             value_iter = std::find_if(this->lss_token_values.lvv_values.begin(),
                                       this->lss_token_values.lvv_values.end(),
@@ -365,10 +371,12 @@ logfile_sub_source::text_value_for_line(textview_curses& tc,
                 continue;
             }
             hl_range = value_iter->lv_origin;
+            log_debug("  found!  %d:%d", hl_range.lr_start, hl_range.lr_end);
         }
         if (hl.annotate(this->lss_token_al, hl_range)
             && value_iter != this->lss_token_values.lvv_values.end())
         {
+            log_debug("did it!");
             value_iter->lv_highlighted = true;
         }
     }

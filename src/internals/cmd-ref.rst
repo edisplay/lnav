@@ -949,8 +949,8 @@
 
 .. _highlight_field:
 
-:highlight-field *\[--color\]* *\[--bold\]* *\[--underline\]* *\[--italic\]* *\[--strike\]* *\[--blink\]* *field* *pattern*
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:highlight-field *\[--color\]* *\[--bold\]* *\[--underline\]* *\[--italic\]* *\[--strike\]* *\[--blink\]* *field* *\[pattern\]*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
   Highlight a field that matches the given pattern
 
@@ -962,7 +962,7 @@
     * **--strike** --- Strikethrough the text
     * **--blink** --- Make the text blink
     * **field\*** --- The name of the field to highlight
-    * **pattern\*** --- The regular expression to match
+    * **pattern** --- The regular expression to match
 
   **Examples**
     To color status values that start with '2' green:

@@ -527,6 +527,10 @@ run_cap_test ${lnav_test} -n \
     ${test_dir}/logfile_access_log.0
 
 run_cap_test ${lnav_test} -n \
+    -c ":highlight-field --underline arg" \
+    ${test_dir}/logfile_grafana.0
+
+run_cap_test ${lnav_test} -n \
     -c ":zoom-to 4-hour" \
     ${test_dir}/textfile_json_indented.0
 
