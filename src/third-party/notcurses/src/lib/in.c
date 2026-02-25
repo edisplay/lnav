@@ -2475,6 +2475,7 @@ process_melange(inputctx* ictx, const unsigned char* buf, int* bufused){
     logdebug("input %d (%u)/%d [0x%02x] (%c)", offset, ictx->amata.used,
              *bufused, buf[offset], isprint(buf[offset]) ? buf[offset] : ' ');
     int consumed = 0;
+    int gotescape = 0;
     if(buf[offset] == '\x1b'){
       consumed = process_escape(ictx, buf + offset, *bufused);
       if(consumed < 0){
@@ -2487,6 +2488,8 @@ process_melange(inputctx* ictx, const unsigned char* buf, int* bufused){
             ictx->midescape = 0;
           }
         }
+      } else {
+        gotescape = 1;
       }
     }
     // don't process as input only if we just read a valid control character,
@@ -2510,6 +2513,10 @@ process_melange(inputctx* ictx, const unsigned char* buf, int* bufused){
     }
     *bufused -= consumed;
     offset += consumed;
+    if (origlen <= 32 && *bufused > 0 && consumed > 0 && gotescape) {
+      logdebug("got one escape, trying to read next one...");
+      break;
+    }
   }
   handoff_initial_responses_late(ictx);
 }
