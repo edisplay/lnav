@@ -432,10 +432,12 @@ apply(vis_line_t vl, std::vector<intern_string_t> annos)
             lnav_data.ld_views[LNV_LOG].set_needs_update();
         };
 
-        lnav_data.ld_child_pollers.emplace_back(
+        auto poller = std::make_shared<child_poller>(
+            iter->second.a_handler.pp_value,
             (*ld)->get_file_ptr()->get_filename(),
             std::move(child),
             std::move(finalizer));
+        lnav_data.ld_child_pollers.emplace_back(poller);
     }
     lf->get_bookmark_metadata()[line_number].bm_annotations = la;
     return Ok();

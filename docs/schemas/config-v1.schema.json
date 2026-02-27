@@ -532,6 +532,11 @@
                                             "description": "Icon for threads",
                                             "title": "/ui/theme-defs/<theme_name>/icons/thread",
                                             "$ref": "#/definitions/icon"
+                                        },
+                                        "busy": {
+                                            "description": "Icon for a 'busy' status",
+                                            "title": "/ui/theme-defs/<theme_name>/icons/busy",
+                                            "$ref": "#/definitions/icon"
                                         }
                                     },
                                     "additionalProperties": false

@@ -57,6 +57,9 @@
                     },
                     "thread": {
                         "value": "\ud83e\uddf5"
+                    },
+                    "busy": {
+                        "value": "\u23f3"
                     }
                 },
                 "vars": {

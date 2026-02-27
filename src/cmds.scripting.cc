@@ -478,13 +478,12 @@ com_sh(exec_context& ec, std::string cmdline, std::vector<std::string>& args)
             return Err(um);
         }
 
-        lnav_data.ld_active_files.fc_file_names[display_name].with_piper(
-            create_piper_res.unwrap());
-        lnav_data.ld_child_pollers.emplace_back(child_poller{
-            display_name,
-            std::move(child),
-            [](auto& fc, auto& child) {},
-        });
+        auto& loo = lnav_data.ld_active_files.fc_file_names[display_name];
+        loo.with_piper(create_piper_res.unwrap());
+        auto poller = std::make_shared<child_poller>(
+            carg, display_name, std::move(child), [](auto& fc, auto& child) {});
+        loo.with_child_poller(poller);
+        lnav_data.ld_child_pollers.emplace_back(poller);
         lnav_data.ld_files_to_front.emplace_back(display_name);
 
         return Ok(fmt::format(FMT_STRING("info: executing -- {}"), carg));

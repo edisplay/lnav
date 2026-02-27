@@ -47,6 +47,7 @@
 #include "bound_tags.hh"
 #include "config.h"
 #include "data_scanner.hh"
+#include "file_collection.hh"
 #include "lnav.events.hh"
 #include "md2attr_line.hh"
 #include "msg.text.hh"
@@ -543,12 +544,15 @@ textfile_sub_source::get_text_format() const
 static attr_line_t
 to_display(const std::shared_ptr<logfile>& lf)
 {
+    const auto& loo = lf->get_open_options();
     attr_line_t retval;
 
-    if (lf->get_open_options().loo_piper) {
+    if (loo.loo_piper) {
         if (!lf->get_open_options().loo_piper->is_finished()) {
             retval.append("\u21bb "_list_glyph);
         }
+    } else if (loo.loo_child_poller && loo.loo_child_poller->is_alive()) {
+        retval.append("\u21bb "_list_glyph);
     }
     retval.append(lf->get_unique_path());
 

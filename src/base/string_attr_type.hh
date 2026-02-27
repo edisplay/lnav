@@ -69,6 +69,7 @@ enum class ui_icon_t : int32_t {
     edit,
     file,
     thread,
+    busy,
 };
 
 constexpr auto ui_icon_count = lnav::enums::to_underlying(ui_icon_t::thread) + 1;

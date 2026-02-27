@@ -45,6 +45,7 @@
 #include "lnav.hh"
 #include "mapbox/variant.hpp"
 #include "md4cpp.hh"
+#include "readline_highlighters.hh"
 #include "sql_util.hh"
 
 using namespace md4cpp::literals;
@@ -345,6 +346,7 @@ files_sub_source::text_value_for_line(textview_curses& tc,
     line -= fc.fc_other_files.size();
 
     const auto& lf = fc.fc_files[line];
+    const auto& loo = lf->get_open_options();
     auto ld_opt = lnav_data.ld_log_source.find_data(lf);
     auto fn = fmt::to_string(std::filesystem::path(lf->get_unique_path()));
 
@@ -378,6 +380,10 @@ files_sub_source::text_value_for_line(textview_curses& tc,
         al.append(" ", VC_ICON.value(ui_icon_t::warning));
     } else if (indexed_size < total_size) {
         al.append(humanize::sparkline(indexed_size, total_size));
+    } else if ((loo.loo_child_poller && loo.loo_child_poller->is_alive())
+               || (loo.loo_piper && !loo.loo_piper->is_finished()))
+    {
+        al.append(" ", VC_ICON.value(ui_icon_t::busy));
     } else {
         al.append(" ", VC_ICON.value(ui_icon_t::ok));
     }
@@ -608,6 +614,18 @@ files_sub_source::text_selection_changed(textview_curses& tc)
                 }
             } else {
                 details.emplace_back(attr_line_t().append("  Piped"));
+            }
+            if (open_opts.loo_child_poller) {
+                auto cmd_al = attr_line_t(
+                    open_opts.loo_child_poller->get_description());
+                readline_shlex_highlighter(cmd_al, std::nullopt);
+                cmd_al.with_attr_for_all(
+                    VC_ROLE.value(role_t::VCR_QUOTED_CODE));
+                details.emplace_back(attr_line_t()
+                                         .append("Child Command"_h3)
+                                         .right_justify(NAME_WIDTH)
+                                         .append(": ")
+                                         .append(cmd_al));
             }
             {
                 auto tf_opt = lf->get_text_format();

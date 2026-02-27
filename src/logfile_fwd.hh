@@ -51,6 +51,7 @@ using ui_clock = std::chrono::steady_clock;
 class logfile;
 class logline;
 class logline_observer;
+class child_poller;
 
 using logfile_const_iterator = std::vector<logline>::const_iterator;
 
@@ -96,6 +97,7 @@ struct logfile_open_options_base {
     std::optional<std::string> loo_format_name;
     std::optional<text_format_t> loo_text_format;
     std::optional<lnav::piper::running_handle> loo_piper;
+    std::shared_ptr<child_poller> loo_child_poller;
     file_location_t loo_init_location{default_for_text_format{}};
     std::vector<lnav::console::user_message> loo_match_details;
     time_range loo_time_range{time_range::unbounded()};
@@ -185,6 +187,12 @@ struct logfile_open_options : logfile_open_options_base {
         this->loo_piper = handle;
         this->loo_filename = handle.get_name();
 
+        return *this;
+    }
+
+    logfile_open_options& with_child_poller(std::shared_ptr<child_poller> cp)
+    {
+        this->loo_child_poller = cp;
         return *this;
     }
 

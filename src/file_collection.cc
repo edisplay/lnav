@@ -608,7 +608,8 @@ file_collection::watch_logfile(const std::string& filename,
                         }
 
                         auto convert_res = cr.unwrap();
-                        retval.fc_child_pollers.emplace_back(child_poller{
+                        auto poller = std::make_shared<child_poller>(
+                            eff->eff_converter,
                             filename,
                             std::move(convert_res.cr_child),
                             [filename,
@@ -641,10 +642,11 @@ file_collection::watch_logfile(const std::string& filename,
                                         st.st_mtime,
                                         um.move(),
                                     });
-                            },
-                        });
+                            });
+                        retval.fc_child_pollers.emplace_back(poller);
                         loo.with_filename(filename);
                         loo.with_stat_for_temp(st);
+                        loo.with_child_poller(poller);
                         loo.loo_format_name = eff->eff_format_name;
                         filename_to_open = convert_res.cr_destination;
                     }
@@ -757,8 +759,7 @@ file_collection::expand_filename(
                     {
                         this->fc_progress->writeAccess()
                             ->sp_tailers[fmt::to_string(rp.home())]
-                            .tp_message
-                            = "Initializing...";
+                            .tp_message = "Initializing...";
                     }
 
                     fq.push_back(

@@ -917,20 +917,24 @@ match_escape_seq(const char* keyseq)
     return input_dispatcher::escape_match_t::NONE;
 }
 
-static void
+static bool
 gather_pipers()
 {
+    auto retval = false;
     for (auto iter = lnav_data.ld_child_pollers.begin();
          iter != lnav_data.ld_child_pollers.end();)
     {
-        if (iter->poll(lnav_data.ld_active_files)
+        if ((*iter)->poll(lnav_data.ld_active_files)
             == child_poll_result_t::FINISHED)
         {
             iter = lnav_data.ld_child_pollers.erase(iter);
+            retval = true;
         } else {
             ++iter;
         }
     }
+
+    return retval;
 }
 
 void
@@ -2532,7 +2536,9 @@ VALUES ('org.lnav.mouse-support', -1, DATETIME('now', '+1 minute'),
                 iter = lnav_data.ld_children.erase(iter);
             }
 
-            gather_pipers();
+            if (gather_pipers()) {
+                breadcrumb_view->set_needs_update();
+            }
 
             next_rescan_time = ui_clock::now();
             next_rebuild_time = next_rescan_time;
@@ -2573,7 +2579,7 @@ VALUES ('org.lnav.mouse-support', -1, DATETIME('now', '+1 minute'),
                         log_debug("file name when SIGINT: %s",
                                   lf->get_filename().c_str());
                         for (auto& cp : lnav_data.ld_child_pollers) {
-                            auto cp_name = cp.get_filename();
+                            auto cp_name = cp->get_filename();
 
                             if (!cp_name) {
                                 log_debug("no child_poller");
@@ -2582,7 +2588,7 @@ VALUES ('org.lnav.mouse-support', -1, DATETIME('now', '+1 minute'),
 
                             if (lf->get_filename() == cp_name.value()) {
                                 log_debug("found it, sending signal!");
-                                cp.send_sigint();
+                                cp->send_sigint();
                                 found_piper = true;
                             }
                         }

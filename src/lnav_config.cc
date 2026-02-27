@@ -723,6 +723,10 @@ static const json_path_container theme_icons_handlers = {
         .with_description("Icon for threads")
         .for_child(&lnav_theme::lt_icon_thread)
         .with_children(icon_config_handlers),
+    yajlpp::property_handler("busy")
+        .with_description("Icon for a 'busy' status")
+        .for_child(&lnav_theme::lt_icon_busy)
+        .with_children(icon_config_handlers),
 };
 
 static const struct json_path_container theme_styles_handlers = {

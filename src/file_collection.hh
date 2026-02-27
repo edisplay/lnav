@@ -33,10 +33,12 @@
 #define lnav_file_collection_hh
 
 #include <forward_list>
+#include <functional>
 #include <future>
 #include <list>
 #include <map>
 #include <memory>
+#include <optional>
 #include <set>
 #include <string>
 #include <vector>
@@ -100,12 +102,13 @@ enum class child_poll_result_t : uint8_t {
 class child_poller {
 public:
     explicit child_poller(
+        std::string description,
         std::optional<std::string> filename,
         auto_pid<process_state::running> child,
         std::function<void(file_collection&,
                            auto_pid<process_state::finished>&)> finalizer)
-        : cp_filename(filename), cp_child(std::move(child)),
-          cp_finalizer(std::move(finalizer))
+        : cp_description(std::move(description)), cp_filename(filename),
+          cp_child(std::move(child)), cp_finalizer(std::move(finalizer))
     {
         ensure(this->cp_finalizer);
     }
@@ -134,6 +137,8 @@ public:
 
     child_poller& operator=(const child_poller&) = delete;
 
+    const std::string& get_description() const { return this->cp_description; }
+
     const std::optional<std::string>& get_filename() const
     {
         return this->cp_filename;
@@ -143,7 +148,10 @@ public:
 
     child_poll_result_t poll(file_collection& fc);
 
+    bool is_alive() const { return this->cp_child.has_value(); }
+
 private:
+    std::string cp_description;
     std::optional<std::string> cp_filename;
     std::optional<auto_pid<process_state::running>> cp_child;
     std::function<void(file_collection&, auto_pid<process_state::finished>&)>
@@ -170,7 +178,7 @@ struct file_collection {
     std::shared_ptr<safe_scan_progress> fc_progress{
         std::make_shared<safe_scan_progress>()};
     std::vector<struct stat> fc_new_stats;
-    std::list<child_poller> fc_child_pollers;
+    std::list<std::shared_ptr<child_poller>> fc_child_pollers;
     size_t fc_largest_path_length{0};
 
     struct limits_t {
